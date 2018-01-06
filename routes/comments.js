@@ -1,9 +1,17 @@
 const express = require('express');
 let router = express.Router();
-
+data={};
 router.get('/', (req,res,next)=>{
-    res.statusCode(200).send("Hello");
+    res.status(200).send(data);
     next();
 });
 
-module.exports = router;
+router.get('/:id', (req,res,next)=>{
+    res.status(200).send(data.posts[req.params.id]);
+    next();
+});
+
+module.exports = function(store){
+    data = store;
+    return router;
+}
