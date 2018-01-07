@@ -2,6 +2,11 @@ const express = require('express')
 let app = express();
 const bodyParser = require('body-parser');
 const errorhandler = require('errorhandler');
+const fs = require('fs');
+const path = require('path');
+const posts = require('./routes/posts');
+const comments = require('./routes/comments');
+
 
 let store = {
     posts: [
@@ -17,13 +22,23 @@ let store = {
         }
     ]
 }
-const posts = require('./routes/posts')(store);
-const comments = require('./routes/comments');
-
 
 app.use(bodyParser.json());
 app.use(errorhandler());
+
+app.use((req,res,next)=>{
+    if(fs.existsSync('./store.json')){
+        store = JSON.parse(fs.readFileSync('./store.json'));
+    }
+    next();
+});
+
+app.use((req,res,next)=>{
+    fs.writeFileSync('./store.json',JSON.stringify(store));
+    next();
+});
+
 app.use('/posts', posts);
-app.use('/posts/:id/comments', comments);
+app.use('/posts', comments);
 
 app.listen(3000);
